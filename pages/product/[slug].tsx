@@ -1,10 +1,15 @@
 import { Box, Button, Chip, Grid, Typography } from '@mui/material';
-import { GetServerSideProps, NextPage } from 'next';
+import {
+	GetServerSideProps,
+	GetStaticPaths,
+	GetStaticProps,
+	NextPage,
+} from 'next';
 import { useRouter } from 'next/router';
 import { ShopLayout } from '../../components/layouts';
 import { ProductSlideShow, SizeSelector } from '../../components/products';
 import { ItemCounter } from '../../components/ui';
-import { dbProducts } from '../../database';
+import { db, dbProducts } from '../../database';
 import { useProducts } from '../../hooks';
 import { IProduct } from '../../interfaces';
 
@@ -62,10 +67,54 @@ const ProductPage: NextPage<Props> = ({ product }) => {
 	);
 };
 
-// getServerSideProps
-export const getServerSideProps: GetServerSideProps = async ({ params }) => {
-	const { slug = '' } = params as { slug: string };
+export default ProductPage;
 
+// ########## getServerSideProps (No Usar SRR) ################
+
+// export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+// 	const { slug = '' } = params as { slug: string };
+
+// 	const product = await dbProducts.getProductBySlug(slug);
+
+// 	if (!product) {
+// 		return {
+// 			redirect: {
+// 				destination: '/',
+// 				permanent: false,
+// 			},
+// 		};
+// 	}
+
+// 	return {
+// 		props: {
+// 			product,
+// 		},
+// 	};
+// };
+
+// export default ProductPage;
+
+// getStaticPaths...
+
+export const getStaticPaths: GetStaticPaths = async (ctx) => {
+	const productSlugs = await dbProducts.getAllProductSlugs();
+
+	return {
+		paths: productSlugs.map(({ slug }) => ({
+			params: {
+				slug,
+			},
+		})),
+		fallback: 'blocking',
+	};
+};
+
+// blocking
+
+// getStaticProps
+
+export const getStaticProps: GetStaticProps = async ({ params }) => {
+	const { slug = '' } = params as { slug: string };
 	const product = await dbProducts.getProductBySlug(slug);
 
 	if (!product) {
@@ -81,7 +130,8 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 		props: {
 			product,
 		},
+		revalidate: 60 * 60 * 24,
 	};
 };
 
-export default ProductPage;
+// revalidar cada 24hrs
