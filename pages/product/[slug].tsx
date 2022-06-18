@@ -1,28 +1,34 @@
 import { Box, Button, Chip, Grid, Typography } from '@mui/material';
-import {
-	GetServerSideProps,
-	GetStaticPaths,
-	GetStaticProps,
-	NextPage,
-} from 'next';
-import { useRouter } from 'next/router';
+import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
+import { useState } from 'react';
 import { ShopLayout } from '../../components/layouts';
 import { ProductSlideShow, SizeSelector } from '../../components/products';
 import { ItemCounter } from '../../components/ui';
-import { db, dbProducts } from '../../database';
-import { useProducts } from '../../hooks';
-import { IProduct } from '../../interfaces';
+import { dbProducts } from '../../database';
+import { ICartProduct, IProduct, ISize } from '../../interfaces';
 
 interface Props {
 	product: IProduct;
 }
 
 const ProductPage: NextPage<Props> = ({ product }) => {
-	// const router = useRouter();
+	const [tempCartProduct, setTempCartProduct] = useState<ICartProduct>({
+		_id: product._id,
+		image: product.images[0],
+		price: product.price,
+		size: undefined,
+		slug: product.slug,
+		title: product.title,
+		gender: product.gender,
+		quantity: 1,
+	});
 
-	// const { products: product, isLoading } = useProducts(
-	// 	`/products/${router.query.slug}`
-	// );
+	const selectedSize = (size: ISize) => {
+		setTempCartProduct((currentProduct) => ({
+			...currentProduct,
+			size,
+		}));
+	};
 
 	return (
 		<ShopLayout title={product.title} pageDescription={product.description}>
@@ -44,15 +50,18 @@ const ProductPage: NextPage<Props> = ({ product }) => {
 							<Typography variant='subtitle2'>Cantidad</Typography>
 							<ItemCounter />
 							<SizeSelector
-								selectedSize={product?.sizes[2]}
+								selectedSize={tempCartProduct.size}
 								sizes={product?.sizes}
+								onSelectedSize={(size) => selectedSize(size)}
 							/>
 						</Box>
 						{/* Add to cart */}
 
 						{product.inStock > 0 ? (
 							<Button color='secondary' className='circular-btn'>
-								Agregar al carrito
+								{tempCartProduct.size
+									? 'Agregar al carrito'
+									: 'Seleccione una talla'}
 							</Button>
 						) : (
 							<Chip label='No disponible' color='error' variant='outlined' />
@@ -72,33 +81,6 @@ const ProductPage: NextPage<Props> = ({ product }) => {
 
 export default ProductPage;
 
-// ########## getServerSideProps (No Usar SRR) ################
-
-// export const getServerSideProps: GetServerSideProps = async ({ params }) => {
-// 	const { slug = '' } = params as { slug: string };
-
-// 	const product = await dbProducts.getProductBySlug(slug);
-
-// 	if (!product) {
-// 		return {
-// 			redirect: {
-// 				destination: '/',
-// 				permanent: false,
-// 			},
-// 		};
-// 	}
-
-// 	return {
-// 		props: {
-// 			product,
-// 		},
-// 	};
-// };
-
-// export default ProductPage;
-
-// getStaticPaths...
-
 export const getStaticPaths: GetStaticPaths = async (ctx) => {
 	const productSlugs = await dbProducts.getAllProductSlugs();
 
@@ -111,10 +93,6 @@ export const getStaticPaths: GetStaticPaths = async (ctx) => {
 		fallback: 'blocking',
 	};
 };
-
-// blocking
-
-// getStaticProps
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
 	const { slug = '' } = params as { slug: string };
@@ -133,8 +111,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 		props: {
 			product,
 		},
+		// revalidar cada 24hrs
 		revalidate: 60 * 60 * 24,
 	};
 };
-
-// revalidar cada 24hrs
