@@ -2,9 +2,6 @@ import { Typography } from '@mui/material';
 import type { GetServerSideProps, NextPage } from 'next';
 import { ShopLayout } from '../../components/layouts';
 import { ProductList } from '../../components/products';
-import { useProducts } from '../../hooks';
-import { FullScreenLoading } from '../../components/ui';
-import { useRouter } from 'next/router';
 import { dbProducts } from '../../database';
 import { IProduct } from '../../interfaces';
 
