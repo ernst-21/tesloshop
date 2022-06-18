@@ -1,6 +1,7 @@
 {
-    "editor.fontSize": 13,
+    "editor.fontSize": 12,
     "prettier.jsxSingleQuote": true,
     "prettier.singleQuote": true,
-    "prettier.useTabs": true
+    "prettier.useTabs": true,
+    "editor.bracketPairColorization.independentColorPoolPerBracketType": true
 }
