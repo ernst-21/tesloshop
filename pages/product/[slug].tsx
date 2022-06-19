@@ -1,9 +1,11 @@
 import { Box, Button, Chip, Grid, Typography } from '@mui/material';
 import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
-import { useState } from 'react';
+import { useRouter } from 'next/router';
+import { useContext, useState } from 'react';
 import { ShopLayout } from '../../components/layouts';
 import { ProductSlideShow, SizeSelector } from '../../components/products';
 import { ItemCounter } from '../../components/ui';
+import { CartContext } from '../../context';
 import { dbProducts } from '../../database';
 import { ICartProduct, IProduct, ISize } from '../../interfaces';
 
@@ -12,6 +14,8 @@ interface Props {
 }
 
 const ProductPage: NextPage<Props> = ({ product }) => {
+	const router = useRouter();
+	const { addProductToCart } = useContext(CartContext);
 	const [tempCartProduct, setTempCartProduct] = useState<ICartProduct>({
 		_id: product._id,
 		image: product.images[0],
@@ -31,7 +35,11 @@ const ProductPage: NextPage<Props> = ({ product }) => {
 	};
 
 	const onAddProduct = () => {
-		console.log('add product', tempCartProduct);
+		if (!tempCartProduct.size) return;
+		//TODO: llamar la acción del context para añadir al carrito
+
+		addProductToCart(tempCartProduct);
+		router.push('/cart');
 	};
 
 	const onUpdateQuantity = (quantity: number) => {
