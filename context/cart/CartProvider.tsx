@@ -1,64 +1,91 @@
-import React, { FC, useReducer, ReactNode } from 'react';
+import React, {FC, useReducer, ReactNode, useEffect, useState} from 'react';
 import { ICartProduct } from '../../interfaces';
 import { CartContext, cartReducer } from './';
+import Cookie from 'js-cookie';
 
 export interface CartState {
-	cart: ICartProduct[];
+  cart: ICartProduct[];
 }
 
 const CART_INITIAL_STATE: CartState = {
-	cart: [],
+  cart: [],
 };
 
 type ProviderProps = {
-	children: ReactNode;
+  children: ReactNode;
 };
 
 export const CartProvider = ({ children }: ProviderProps) => {
-	const [state, dispatch] = useReducer(cartReducer, CART_INITIAL_STATE);
+  const [state, dispatch] = useReducer(cartReducer, CART_INITIAL_STATE);
+  const [mounted, setIsMounted] = useState(false);
 
-	const addProductToCart = (product: ICartProduct) => {
-		//dispatch({ type: '[Cart] - Add Product', payload: product });
+  useEffect(() => {
+    try {
+      const cookieProducts = Cookie.get('cart')
+        ? JSON.parse(Cookie.get('cart')!)
+        : [];
+      dispatch({
+        type: '[Cart] - LoadCart from cookie | storage',
+        payload: cookieProducts,
+      });
+      setIsMounted(true);
+    } catch (e) {
+      console.log(e);
+      dispatch({
+        type: '[Cart] - LoadCart from cookie | storage',
+        payload: [],
+      });
+    }
+    setIsMounted(true);
+  }, []);
 
-		const productInCart = state.cart.some((p) => p._id === product._id);
-		if (!productInCart)
-			return dispatch({
-				type: '[Cart] - Update products in cart',
-				payload: [...state.cart, product],
-			});
-		const productInCartButDifferentSize = state.cart.some(
-			(p) => p._id === product._id && p.size === product.size
-		);
+  useEffect(() => {
+    if (mounted) {
+      Cookie.set('cart', JSON.stringify(state.cart));
+    }
+  }, [state.cart, mounted]);
 
-		if (!productInCartButDifferentSize)
-			return dispatch({
-				type: '[Cart] - Update products in cart',
-				payload: [...state.cart, product],
-			});
+  const addProductToCart = (product: ICartProduct) => {
 
-		// Acumular
-		const updateProduct = state.cart.map((p) => {
-			if (p._id !== product._id) return p;
-			if (p.size !== product.size) return p;
+    const productInCart = state.cart.some((p) => p._id === product._id);
+    if (!productInCart)
+      return dispatch({
+        type: '[Cart] - Update products in cart',
+        payload: [...state.cart, product],
+      });
+    const productInCartButDifferentSize = state.cart.some(
+      (p) => p._id === product._id && p.size === product.size
+    );
 
-			p.quantity += product.quantity;
-			return p;
-		});
+    if (!productInCartButDifferentSize)
+      return dispatch({
+        type: '[Cart] - Update products in cart',
+        payload: [...state.cart, product],
+      });
 
-		dispatch({
-			type: '[Cart] - Update products in cart',
-			payload: updateProduct,
-		});
-	};
+    // Acumular
+    const updateProduct = state.cart.map((p) => {
+      if (p._id !== product._id) return p;
+      if (p.size !== product.size) return p;
 
-	return (
-		<CartContext.Provider
-			value={{
-				...state,
-				addProductToCart,
-			}}
-		>
-			{children}
-		</CartContext.Provider>
-	);
+      p.quantity += product.quantity;
+      return p;
+    });
+
+    dispatch({
+      type: '[Cart] - Update products in cart',
+      payload: updateProduct,
+    });
+  };
+
+  return (
+    <CartContext.Provider
+      value={{
+        ...state,
+        addProductToCart,
+      }}
+    >
+      {children}
+    </CartContext.Provider>
+  );
 };
