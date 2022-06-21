@@ -1,138 +1,147 @@
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
-	ClearOutlined,
-	SearchOutlined,
-	ShoppingCartOutlined,
+  ClearOutlined,
+  SearchOutlined,
+  ShoppingCartOutlined,
 } from '@mui/icons-material';
 import {
-	AppBar,
-	Box,
-	Button,
-	Badge,
-	IconButton,
-	Link,
-	Toolbar,
-	Typography,
-	Input,
-	InputAdornment,
+  AppBar,
+  Box,
+  Button,
+  Badge,
+  IconButton,
+  Link,
+  Toolbar,
+  Typography,
+  Input,
+  InputAdornment,
 } from '@mui/material';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import { useContext } from 'react';
-import { UiContext } from '../../context';
+import { CartContext, UiContext } from '../../context';
 
 export const Navbar = () => {
-	const { asPath, push } = useRouter();
-	const { toggleSideMenu } = useContext(UiContext);
-	const [searchTerm, setSearchTerm] = useState('');
-	const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const { asPath, push } = useRouter();
+  const { toggleSideMenu } = useContext(UiContext);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const { cart } = useContext(CartContext);
 
-	const onSearchTerm = () => {
-		if (searchTerm?.trim().length === 0) return;
-		push(`/search/${searchTerm}`);
-	};
+  const cartCounter = useMemo(() => {
+    let counter = 0;
+    cart.map((p) => {
+      counter += p.quantity;
+    });
+    return counter;
+  }, [cart]);
 
-	const onClearSearch = () => {
-		setSearchTerm('');
-		setIsSearchVisible(false);
-	};
+  const onSearchTerm = () => {
+    if (searchTerm?.trim().length === 0) return;
+    push(`/search/${searchTerm}`);
+  };
 
-	return (
-		<AppBar>
-			<Toolbar>
-				<NextLink href='/' passHref>
-					<Link display={'flex'} alignItems='center'>
-						<Typography variant='h6'>Teslo |</Typography>
-						<Typography sx={{ ml: 0.5 }}>Shop</Typography>
-					</Link>
-				</NextLink>
+  const onClearSearch = () => {
+    setSearchTerm('');
+    setIsSearchVisible(false);
+  };
 
-				<Box flex={1} />
+  return (
+    <AppBar>
+      <Toolbar>
+        <NextLink href="/" passHref>
+          <Link display={'flex'} alignItems="center">
+            <Typography variant="h6">Teslo |</Typography>
+            <Typography sx={{ ml: 0.5 }}>Shop</Typography>
+          </Link>
+        </NextLink>
 
-				<Box
-					sx={{
-						display: isSearchVisible ? 'none' : { xs: 'none', sm: 'block' },
-					}}
-				>
-					<NextLink href='/category/men' passHref>
-						<Link>
-							<Button color={asPath === '/category/men' ? 'primary' : 'info'}>
-								Hombres
-							</Button>
-						</Link>
-					</NextLink>
-					<NextLink href='/category/women' passHref>
-						<Link>
-							<Button color={asPath === '/category/women' ? 'primary' : 'info'}>
-								Mujeres
-							</Button>
-						</Link>
-					</NextLink>
-					<NextLink href='/category/kid' passHref>
-						<Link>
-							<Button color={asPath === '/category/kid' ? 'primary' : 'info'}>
-								Niños
-							</Button>
-						</Link>
-					</NextLink>
-				</Box>
+        <Box flex={1} />
 
-				<Box flex={1} />
+        <Box
+          sx={{
+            display: isSearchVisible ? 'none' : { xs: 'none', sm: 'block' },
+          }}
+        >
+          <NextLink href="/category/men" passHref>
+            <Link>
+              <Button color={asPath === '/category/men' ? 'primary' : 'info'}>
+                Hombres
+              </Button>
+            </Link>
+          </NextLink>
+          <NextLink href="/category/women" passHref>
+            <Link>
+              <Button color={asPath === '/category/women' ? 'primary' : 'info'}>
+                Mujeres
+              </Button>
+            </Link>
+          </NextLink>
+          <NextLink href="/category/kid" passHref>
+            <Link>
+              <Button color={asPath === '/category/kid' ? 'primary' : 'info'}>
+                Niños
+              </Button>
+            </Link>
+          </NextLink>
+        </Box>
 
-				{/* pantallas grandes */}
+        <Box flex={1} />
 
-				{isSearchVisible ? (
-					<Input
-						sx={{
-							display: { xs: 'none', sm: 'flex' },
-						}}
-						className='fadeIn'
-						type='text'
-						autoFocus
-						value={searchTerm}
-						onChange={(e) => setSearchTerm(e.target.value)}
-						onKeyPress={(e) => (e.key === 'Enter' ? onSearchTerm() : null)}
-						placeholder='Buscar...'
-						endAdornment={
-							<InputAdornment position='end'>
-								<IconButton onClick={onClearSearch}>
-									<ClearOutlined />
-								</IconButton>
-							</InputAdornment>
-						}
-					/>
-				) : (
-					<IconButton
-						sx={{
-							display: { xs: 'none', sm: 'flex' },
-						}}
-						onClick={() => setIsSearchVisible(true)}
-					>
-						<SearchOutlined />
-					</IconButton>
-				)}
+        {/* pantallas grandes */}
 
-				{/* pantallas pequeñas */}
+        {isSearchVisible ? (
+          <Input
+            sx={{
+              display: { xs: 'none', sm: 'flex' },
+            }}
+            className="fadeIn"
+            type="text"
+            autoFocus
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyPress={(e) => (e.key === 'Enter' ? onSearchTerm() : null)}
+            placeholder="Buscar..."
+            endAdornment={
+              <InputAdornment position="end">
+                <IconButton onClick={onClearSearch}>
+                  <ClearOutlined />
+                </IconButton>
+              </InputAdornment>
+            }
+          />
+        ) : (
+          <IconButton
+            sx={{
+              display: { xs: 'none', sm: 'flex' },
+            }}
+            onClick={() => setIsSearchVisible(true)}
+          >
+            <SearchOutlined />
+          </IconButton>
+        )}
 
-				<IconButton
-					sx={{ display: { xs: 'flex', sm: 'none' } }}
-					onClick={toggleSideMenu}
-				>
-					<SearchOutlined />
-				</IconButton>
+        {/* pantallas pequeñas */}
 
-				<NextLink href={'/cart'} passHref>
-					<Link>
-						<IconButton>
-							<Badge badgeContent={2} color='secondary'>
-								<ShoppingCartOutlined />
-							</Badge>
-						</IconButton>
-					</Link>
-				</NextLink>
+        <IconButton
+          sx={{ display: { xs: 'flex', sm: 'none' } }}
+          onClick={toggleSideMenu}
+        >
+          <SearchOutlined />
+        </IconButton>
 
-				<Button onClick={toggleSideMenu}>Menu</Button>
-			</Toolbar>
-		</AppBar>
-	);
+        <NextLink href={'/cart'} passHref>
+          <Link>
+            <IconButton>
+              <Badge badgeContent={cartCounter} color="secondary">
+                <ShoppingCartOutlined />
+              </Badge>
+            </IconButton>
+          </Link>
+        </NextLink>
+
+        <Button onClick={toggleSideMenu}>Menu</Button>
+      </Toolbar>
+    </AppBar>
+  );
 };
