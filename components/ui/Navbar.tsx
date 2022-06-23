@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useState } from 'react';
 import {
   ClearOutlined,
   SearchOutlined,
@@ -26,15 +26,8 @@ export const Navbar = () => {
   const { toggleSideMenu } = useContext(UiContext);
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearchVisible, setIsSearchVisible] = useState(false);
-  const { cart } = useContext(CartContext);
+  const { numberOfItems } = useContext(CartContext);
 
-  const cartCounter = useMemo(() => {
-    let counter = 0;
-    cart.map((p) => {
-      counter += p.quantity;
-    });
-    return counter;
-  }, [cart]);
 
   const onSearchTerm = () => {
     if (searchTerm?.trim().length === 0) return;
@@ -49,9 +42,9 @@ export const Navbar = () => {
   return (
     <AppBar>
       <Toolbar>
-        <NextLink href="/" passHref>
-          <Link display={'flex'} alignItems="center">
-            <Typography variant="h6">Teslo |</Typography>
+        <NextLink href='/' passHref>
+          <Link display={'flex'} alignItems='center'>
+            <Typography variant='h6'>Teslo |</Typography>
             <Typography sx={{ ml: 0.5 }}>Shop</Typography>
           </Link>
         </NextLink>
@@ -63,21 +56,21 @@ export const Navbar = () => {
             display: isSearchVisible ? 'none' : { xs: 'none', sm: 'block' },
           }}
         >
-          <NextLink href="/category/men" passHref>
+          <NextLink href='/category/men' passHref>
             <Link>
               <Button color={asPath === '/category/men' ? 'primary' : 'info'}>
                 Hombres
               </Button>
             </Link>
           </NextLink>
-          <NextLink href="/category/women" passHref>
+          <NextLink href='/category/women' passHref>
             <Link>
               <Button color={asPath === '/category/women' ? 'primary' : 'info'}>
                 Mujeres
               </Button>
             </Link>
           </NextLink>
-          <NextLink href="/category/kid" passHref>
+          <NextLink href='/category/kid' passHref>
             <Link>
               <Button color={asPath === '/category/kid' ? 'primary' : 'info'}>
                 Niños
@@ -95,15 +88,15 @@ export const Navbar = () => {
             sx={{
               display: { xs: 'none', sm: 'flex' },
             }}
-            className="fadeIn"
-            type="text"
+            className='fadeIn'
+            type='text'
             autoFocus
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyPress={(e) => (e.key === 'Enter' ? onSearchTerm() : null)}
-            placeholder="Buscar..."
+            placeholder='Buscar...'
             endAdornment={
-              <InputAdornment position="end">
+              <InputAdornment position='end'>
                 <IconButton onClick={onClearSearch}>
                   <ClearOutlined />
                 </IconButton>
@@ -133,7 +126,7 @@ export const Navbar = () => {
         <NextLink href={'/cart'} passHref>
           <Link>
             <IconButton>
-              <Badge badgeContent={cartCounter} color="secondary">
+              <Badge badgeContent={numberOfItems > 9 ? '+9' : numberOfItems} color='secondary'>
                 <ShoppingCartOutlined />
               </Badge>
             </IconButton>
