@@ -18,6 +18,10 @@ Renombrar el archivo **.env.template** a **.env**
 MONGO_URL=mongodb://localhost:27017/teslodb
 ```
 
+```
+NEXT_PUBLIC_TAX_RATE={'El tax rate que quieras usar'}
+```
+
 - Reconstruir los módulos de node y levantar Next
 
 ```
