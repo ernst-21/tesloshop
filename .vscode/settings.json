@@ -1,8 +1,0 @@
-{
-    "editor.fontSize": 13,
-    "prettier.jsxSingleQuote": true,
-    "prettier.singleQuote": true,
-    "prettier.useTabs": true,
-    "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
-    "editor.fontFamily": "'Fira Code', Menlo, Monaco, 'Courier New', monospace"
-}

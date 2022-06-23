@@ -1,4 +1,4 @@
-import React, {FC, useReducer, ReactNode, useEffect, useState} from 'react';
+import React, { useReducer, ReactNode, useEffect, useState } from 'react';
 import { ICartProduct } from '../../interfaces';
 import { CartContext, cartReducer } from './';
 import Cookie from 'js-cookie';
@@ -54,7 +54,7 @@ export const CartProvider = ({ children }: ProviderProps) => {
         payload: [...state.cart, product],
       });
     const productInCartButDifferentSize = state.cart.some(
-      (p) => p._id === product._id && p.size === product.size
+      (p) => p._id === product._id && p.size === product.size,
     );
 
     if (!productInCartButDifferentSize)
@@ -78,11 +78,21 @@ export const CartProvider = ({ children }: ProviderProps) => {
     });
   };
 
+  const updateCartQuantity = (product: ICartProduct) => {
+    dispatch({ type: '[Cart] - Change cart quantity', payload: product });
+  };
+
+  const removeCartProduct = (product: ICartProduct) => {
+    dispatch({ type: '[Cart] - Remove product in cart', payload: product });
+  };
+
   return (
     <CartContext.Provider
       value={{
         ...state,
         addProductToCart,
+        updateCartQuantity,
+        removeCartProduct
       }}
     >
       {children}
