@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Box, Button, Chip, Grid, Link, TextField, Typography } from '@mui/material';
 import NextLink from 'next/link';
 import { AuthLayout } from '../../components/layouts';
 import { useForm } from 'react-hook-form';
-import { tesloApi } from '../../api';
 import { validations } from '../../utils';
 import { ErrorOutlined } from '@mui/icons-material';
+import { useRouter } from 'next/router';
+import { AuthContext } from '../../context';
 
 type FormData = {
     name: string,
@@ -15,23 +16,27 @@ type FormData = {
 
 
 const RegisterPage = () => {
+    const router = useRouter();
+    const { registerUser } = useContext(AuthContext);
     const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
     const [showError, setShowError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
 
     const onRegisterForm = async ({ email, password, name }: FormData) => {
-        try {
-            const { data } = await tesloApi.post('/user/register', { email, password, name });
-            const { token, user } = data;
-            console.log({ token, user });
-        } catch (error) {
-            console.log('Bad credentials');
+        setShowError(false);
+
+        const { hasError, message } = await registerUser(name, email, password);
+
+        if (hasError) {
             setShowError(true);
+            setErrorMessage(message!);
             setTimeout(() => {
                 setShowError(false);
             }, 3000);
+            return;
         }
 
-        // todo: navigate to previous screen or home
+        await router.replace('/');
     };
 
 
@@ -46,7 +51,7 @@ const RegisterPage = () => {
                             </Typography>
                             <Chip className='fadeIn'
                                   sx={{ display: showError ? 'flex' : 'none', justifyContent: 'flex-start' }}
-                                  label='Bad credentials'
+                                  label={errorMessage}
                                   color='error'
                                   icon={<ErrorOutlined />}
                             />

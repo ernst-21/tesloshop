@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import NextLink from 'next/link';
 import { AuthLayout } from '../../components/layouts';
 import { Box, Button, Chip, Grid, Link, TextField, Typography } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { validations } from '../../utils';
-import { tesloApi } from '../../api';
 import { ErrorOutlined } from '@mui/icons-material';
+import { AuthContext } from '../../context';
+import { useRouter } from 'next/router';
 
 type FormData = {
     email: string,
@@ -13,22 +14,24 @@ type FormData = {
 };
 
 const LoginPage = () => {
+    const router = useRouter();
     const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
+    const { loginUser } = useContext(AuthContext);
     const [showError, setShowError] = useState(false);
 
     const onLoginUser = async ({ email, password }: FormData) => {
-        try {
-            const { data } = await tesloApi.post('/user/login', { email, password });
-            const { token, user } = data;
-            console.log({ token, user });
-        } catch (error) {
+        setShowError(false);
+
+        const isValidLogin = await loginUser(email, password);
+
+        if (!isValidLogin) {
             setShowError(true);
             setTimeout(() => {
                 setShowError(false);
             }, 3000);
+            return;
         }
-
-        // todo: navigate to previous screen or home
+        await router.replace('/');
     };
 
     return (
