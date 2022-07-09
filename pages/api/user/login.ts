@@ -43,6 +43,6 @@ export default function handler(req: NextApiRequest, res: NextApiResponse<Data>)
     case 'POST':
       return loginUser(req, res);
     default:
-      res.status(400).json({ message: 'Bad Reques' });
+      res.status(400).json({ message: 'Bad Request' });
   }
 }
