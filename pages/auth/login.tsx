@@ -42,7 +42,7 @@ const LoginPage = () => {
                             </Typography>
                             <Chip className='fadeIn'
                                   sx={{ display: showError ? 'flex' : 'none', justifyContent: 'flex-start' }}
-                                  label='User o password not found'
+                                  label='Bad credentials'
                                   color='error'
                                   icon={<ErrorOutlined />}
                             />
