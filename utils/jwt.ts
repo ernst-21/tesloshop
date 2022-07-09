@@ -8,8 +8,8 @@ export const signToken = (_id: string, email: string) => {
   return jwt.sign(
     //payload
     {
-      _id, email,
-
+      _id,
+      email,
     },
     //seed
     process.env.JWT_SECRET_SEED,
@@ -17,13 +17,17 @@ export const signToken = (_id: string, email: string) => {
     // Options
     {
       expiresIn: '30d',
-    },
+    }
   );
 };
 
 export const isValidToken = (token: string): Promise<string> => {
   if (!process.env.JWT_SECRET_SEED) {
     throw new Error('No JWT seed - Check env variables');
+  }
+
+  if (token.length < 10) {
+    Promise.reject('Invalid JWT');
   }
 
   return new Promise((resolve, reject) => {

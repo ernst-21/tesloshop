@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import NextLink from 'next/link';
 import { AuthLayout } from '../../components/layouts';
 import { Box, Button, Chip, Grid, Link, TextField, Typography } from '@mui/material';
@@ -19,6 +19,10 @@ const LoginPage = () => {
     const { loginUser } = useContext(AuthContext);
     const [showError, setShowError] = useState(false);
 
+    const destination = useMemo(() => {
+        return router.query.p?.toString() || '/'
+    }, [router]);
+
     const onLoginUser = async ({ email, password }: FormData) => {
         setShowError(false);
 
@@ -31,11 +35,12 @@ const LoginPage = () => {
             }, 3000);
             return;
         }
-        await router.replace('/');
+
+        await router.replace(destination);
     };
 
     return (
-        <AuthLayout title='Ingresar'>
+        <AuthLayout title='Signin'>
             <form onSubmit={handleSubmit(onLoginUser)} noValidate>
                 <Box sx={{ width: 350, pading: '10px 20px' }}>
                     <Grid container spacing={2}>
@@ -93,7 +98,7 @@ const LoginPage = () => {
                             </Button>
                         </Grid>
                         <Grid item xs={12} display='flex' justifyContent={'end'}>
-                            <NextLink href={'/auth/register'} passHref>
+                            <NextLink href={`/auth/register?p=${destination}`} passHref>
                                 <Link underline='always'>Don't have an account yet?</Link>
                             </NextLink>
                         </Grid>
