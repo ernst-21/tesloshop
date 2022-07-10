@@ -41,7 +41,7 @@ const getAddressFromCookies = (): FormData => {
 
 const AddressPage = () => {
   const router = useRouter();
-  const { updateAddress, shippingAddress } = useContext(CartContext);
+  const { updateAddress } = useContext(CartContext);
   const {
     register,
     handleSubmit,
@@ -141,7 +141,7 @@ const AddressPage = () => {
             <FormControl fullWidth>
               <TextField
                 select
-                defaultValue={shippingAddress?.country || countries[0].code}
+                defaultValue={Cookies.get('country') || countries[0].code}
                 placeholder="Select country"
                 variant="filled"
                 label="Country"
