@@ -4,14 +4,15 @@ import {
   FormControl,
   Grid,
   MenuItem,
-  Select,
   TextField,
   Typography,
 } from '@mui/material';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
+import { useContext } from 'react';
 import { useForm } from 'react-hook-form';
 import { ShopLayout } from '../../components/layouts';
+import { CartContext } from '../../context';
 import { countries } from '../../utils';
 
 type FormData = {
@@ -40,6 +41,7 @@ const getAddressFromCookies = (): FormData => {
 
 const AddressPage = () => {
   const router = useRouter();
+  const { updateAddress, shippingAddress } = useContext(CartContext);
   const {
     register,
     handleSubmit,
@@ -49,16 +51,7 @@ const AddressPage = () => {
   });
 
   const onSubmitAddress = (data: FormData) => {
-    console.log({ data });
-    Cookies.set('firstName', data.firstName);
-    Cookies.set('lastName', data.lastName);
-    Cookies.set('address', data.address);
-    Cookies.set('address2', data.address2 || '');
-    Cookies.set('zip', data.zip);
-    Cookies.set('city', data.city);
-    Cookies.set('country', data.country);
-    Cookies.set('phone', data.phone);
-
+    updateAddress(data);
     router.push('/checkout/summary');
   };
 
@@ -148,7 +141,7 @@ const AddressPage = () => {
             <FormControl fullWidth>
               <TextField
                 select
-                defaultValue={countries[0].code}
+                defaultValue={shippingAddress?.country || countries[0].code}
                 placeholder="Select country"
                 variant="filled"
                 label="Country"
