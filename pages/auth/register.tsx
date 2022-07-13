@@ -1,4 +1,6 @@
 import React, { useContext, useMemo, useState } from 'react';
+import { GetServerSideProps } from 'next';
+import { getSession, signIn } from 'next-auth/react';
 import {
   Box,
   Button,
@@ -51,7 +53,8 @@ const RegisterPage = () => {
       return;
     }
 
-    await router.replace(destination);
+    //await router.replace(destination);
+    await signIn('credentials', { email, password });
   };
 
   return (
@@ -145,6 +148,28 @@ const RegisterPage = () => {
       </form>
     </AuthLayout>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async ({
+  req,
+  query,
+}) => {
+  const { p = '/' } = query;
+
+  const session = await getSession({ req });
+
+  if (session) {
+    return {
+      redirect: {
+        destination: p.toString(),
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
 };
 
 export default RegisterPage;

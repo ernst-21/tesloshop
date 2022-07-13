@@ -1,63 +1,70 @@
-import { useContext, useMemo } from 'react';
+import { useContext, useEffect } from 'react';
+import NextLink from 'next/link';
+import { useRouter } from 'next/router';
+import Cookies from 'js-cookie';
+
 import {
+  Link,
   Box,
   Button,
   Card,
   CardContent,
   Divider,
   Grid,
-  Link,
   Typography,
 } from '@mui/material';
-import { CartList, OrderSummary } from '../../components/cart';
-import { ShopLayout } from '../../components/layouts';
-import NextLink from 'next/link';
+
 import { CartContext } from '../../context';
+import { ShopLayout } from '../../components/layouts/ShopLayout';
+import { CartList, OrderSummary } from '../../components/cart';
 import { countries } from '../../utils';
 
 const SummaryPage = () => {
+  const router = useRouter();
   const { shippingAddress, numberOfItems } = useContext(CartContext);
 
-  const itemsNumber = useMemo(() => {
-    return numberOfItems === 1 ? 'producto' : 'productos';
-  }, [numberOfItems]);
-
-  const countryName = useMemo(() => {
-    if (shippingAddress && shippingAddress.country) {
-      const country = countries.find(
-        (country) => shippingAddress?.country === country.code
-      );
-      return country?.name;
+  useEffect(() => {
+    if (!Cookies.get('firstName')) {
+      router.push('/checkout/address');
     }
-  }, [shippingAddress]);
+  }, [router]);
 
   if (!shippingAddress) {
     return <></>;
   }
 
-  const { firstName, lastName, address, address2, city, country, phone, zip } =
-    shippingAddress;
+  const {
+    firstName,
+    lastName,
+    address,
+    address2 = '',
+    city,
+    country,
+    phone,
+    zip,
+  } = shippingAddress;
 
   return (
-    <ShopLayout title="Resumen de orden" pageDescription="Resumen de la orden">
+    <ShopLayout title="order sumary" pageDescription={'Order summary'}>
       <Typography variant="h1" component="h1">
-        Order Details
+        Order summary
       </Typography>
+
       <Grid container>
         <Grid item xs={12} sm={7}>
-          {/* CartList */}
           <CartList />
         </Grid>
         <Grid item xs={12} sm={5}>
-          <Card className="summaryary-cart">
+          <Card className="summary-card">
             <CardContent>
               <Typography variant="h2">
-                Details ({numberOfItems} {itemsNumber})
+                Summary ({numberOfItems}{' '}
+                {numberOfItems === 1 ? 'product' : 'products'})
               </Typography>
               <Divider sx={{ my: 1 }} />
 
               <Box display="flex" justifyContent="space-between">
-                <Typography variant="subtitle1">Shipping Address</Typography>
+                <Typography variant="subtitle1">Shipping address</Typography>
                 <NextLink href="/checkout/address" passHref>
                   <Link underline="always">Edit</Link>
                 </NextLink>
@@ -68,13 +75,14 @@ const SummaryPage = () => {
               </Typography>
               <Typography>
                 {address}
-                {address2 ? `, ${address2}` : ''}
+                {address2 ? `, ${address2}` : ''}{' '}
               </Typography>
               <Typography>
                 {city}, {zip}
               </Typography>
-              <Typography>{countryName}</Typography>
-              <Typography>+{phone}</Typography>
+              {/* <Typography>{ countries.find( c => c.code === country )?.name }</Typography> */}
+              <Typography>{country}</Typography>
+              <Typography>{phone}</Typography>
 
               <Divider sx={{ my: 1 }} />
 
@@ -88,7 +96,7 @@ const SummaryPage = () => {
 
               <Box sx={{ mt: 3 }}>
                 <Button color="secondary" className="circular-btn" fullWidth>
-                  Confirm order
+                  Confirm Order
                 </Button>
               </Box>
             </CardContent>

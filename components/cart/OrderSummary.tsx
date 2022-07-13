@@ -11,10 +11,10 @@ export const OrderSummary = () => {
   return (
     <Grid container>
       <Grid item xs={6}>
-        <Typography>No. Productos</Typography>
+        <Typography>No. Products</Typography>
       </Grid>
 
-      <Grid item xs={6} display='flex' justifyContent='end'>
+      <Grid item xs={6} display="flex" justifyContent="end">
         <Typography>{numberOfItems}</Typography>
       </Grid>
 
@@ -22,24 +22,24 @@ export const OrderSummary = () => {
         <Typography>SubTotal</Typography>
       </Grid>
 
-      <Grid item xs={6} display='flex' justifyContent='end'>
+      <Grid item xs={6} display="flex" justifyContent="end">
         <Typography>{currency.format(subTotal)}</Typography>
       </Grid>
 
       <Grid item xs={6}>
-        <Typography>Impuestos ({taxRate}%)</Typography>
+        <Typography>Taxes ({taxRate}%)</Typography>
       </Grid>
 
-      <Grid item xs={6} display='flex' justifyContent='end'>
+      <Grid item xs={6} display="flex" justifyContent="end">
         <Typography>{currency.format(tax)}</Typography>
       </Grid>
 
       <Grid item xs={6} sx={{ mt: 2 }}>
-        <Typography variant='subtitle1'>Total</Typography>
+        <Typography variant="subtitle1">Total</Typography>
       </Grid>
 
-      <Grid item xs={6} sx={{ mt: 2 }} display='flex' justifyContent='end'>
-        <Typography variant='subtitle1'>{currency.format(total)}</Typography>
+      <Grid item xs={6} sx={{ mt: 2 }} display="flex" justifyContent="end">
+        <Typography variant="subtitle1">{currency.format(total)}</Typography>
       </Grid>
     </Grid>
   );
