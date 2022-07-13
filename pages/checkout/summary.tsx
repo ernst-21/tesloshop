@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import Cookies from 'js-cookie';
@@ -12,22 +12,38 @@ import {
   Divider,
   Grid,
   Typography,
+  Chip,
 } from '@mui/material';
 
 import { CartContext } from '../../context';
-import { ShopLayout } from '../../components/layouts/ShopLayout';
+import { ShopLayout } from '../../components/layouts';
 import { CartList, OrderSummary } from '../../components/cart';
-import { countries } from '../../utils';
 
 const SummaryPage = () => {
   const router = useRouter();
-  const { shippingAddress, numberOfItems } = useContext(CartContext);
+  const { shippingAddress, numberOfItems, createOrder } =
+    useContext(CartContext);
+  const [isPosting, setIsPosting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     if (!Cookies.get('firstName')) {
       router.push('/checkout/address');
     }
   }, [router]);
+
+  const onCreateOrder = async () => {
+    setIsPosting(true);
+    const { hasError, message } = await createOrder();
+
+    if (hasError) {
+      setIsPosting(false);
+      setErrorMessage(message);
+      return;
+    }
+
+    await router.replace(`/orders/${message}`);
+  };
 
   if (!shippingAddress) {
     return <></>;
@@ -45,7 +61,7 @@ const SummaryPage = () => {
   } = shippingAddress;
 
   return (
-    <ShopLayout title="order sumary" pageDescription={'Order summary'}>
+    <ShopLayout title="Order summary" pageDescription={'Order summary'}>
       <Typography variant="h1" component="h1">
         Order summary
       </Typography>
@@ -80,7 +96,6 @@ const SummaryPage = () => {
               <Typography>
                 {city}, {zip}
               </Typography>
-              {/* <Typography>{ countries.find( c => c.code === country )?.name }</Typography> */}
               <Typography>{country}</Typography>
               <Typography>{phone}</Typography>
 
@@ -94,10 +109,21 @@ const SummaryPage = () => {
 
               <OrderSummary />
 
-              <Box sx={{ mt: 3 }}>
-                <Button color="secondary" className="circular-btn" fullWidth>
+              <Box sx={{ mt: 3 }} display="flex" flexDirection="column">
+                <Button
+                  onClick={onCreateOrder}
+                  color="secondary"
+                  className="circular-btn"
+                  fullWidth
+                  disabled={isPosting}
+                >
                   Confirm Order
                 </Button>
+                <Chip
+                  color="error"
+                  label={errorMessage}
+                  sx={{ display: errorMessage ? 'flex' : 'none', mt: 2 }}
+                />
               </Box>
             </CardContent>
           </Card>

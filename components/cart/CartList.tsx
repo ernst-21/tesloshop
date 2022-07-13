@@ -11,28 +11,40 @@ import NextLink from 'next/link';
 import { ItemCounter } from '../ui';
 import { FC, useContext } from 'react';
 import { CartContext } from '../../context';
-import { ICartProduct } from '../../interfaces';
+import { ICartProduct, IOrderItem } from '../../interfaces';
 
 interface Props {
   editable?: boolean;
+  products?: IOrderItem[];
 }
 
-export const CartList: FC<Props> = ({ editable = false }) => {
-  const { cart, updateCartQuantity, removeCartProduct } = useContext(CartContext);
+export const CartList: FC<Props> = ({ editable = false, products = [] }) => {
+  const { cart, updateCartQuantity, removeCartProduct } =
+    useContext(CartContext);
 
-  const onNewCartQuantity = (product: ICartProduct, newQuantityValue: number) => {
+  const onNewCartQuantity = (
+    product: ICartProduct,
+    newQuantityValue: number
+  ) => {
     product.quantity = newQuantityValue;
     updateCartQuantity(product);
   };
 
-  if (!cart.length) {
-    return <h1>No hay productos en el carrito</h1>;
+  const productsToShow = products.length ? products : cart;
+
+  if (!productsToShow.length) {
+    return <h1>No products to show</h1>;
   }
 
   return (
     <>
-      {cart?.map((product) => (
-        <Grid container spacing={2} key={product?.slug + product.size} sx={{ mb: 1 }}>
+      {productsToShow?.map((product) => (
+        <Grid
+          container
+          spacing={2}
+          key={product?.slug + product.size}
+          sx={{ mb: 1 }}
+        >
           <Grid item xs={3}>
             {/* Llevar a pagina del producto */}
             <NextLink href={`/product/${product.slug}`} passHref>
@@ -40,7 +52,7 @@ export const CartList: FC<Props> = ({ editable = false }) => {
                 <CardActionArea>
                   <CardMedia
                     image={`/products/${product.image}`}
-                    component='img'
+                    component="img"
                     sx={{ borderRadius: '5px' }}
                   />
                 </CardActionArea>
@@ -48,9 +60,9 @@ export const CartList: FC<Props> = ({ editable = false }) => {
             </NextLink>
           </Grid>
           <Grid item xs={7}>
-            <Box display='flex' flexDirection='column'>
-              <Typography variant='body1'>{product?.title}</Typography>
-              <Typography variant='body1'>
+            <Box display="flex" flexDirection="column">
+              <Typography variant="body1">{product?.title}</Typography>
+              <Typography variant="body1">
                 Talla: <strong>{product.size}</strong>
               </Typography>
               {/* Condicional */}
@@ -58,10 +70,12 @@ export const CartList: FC<Props> = ({ editable = false }) => {
                 <ItemCounter
                   currentValue={product.quantity}
                   maxValue={10}
-                  updateQuantity={(value) => onNewCartQuantity(product, value)}
+                  updateQuantity={(value) =>
+                    onNewCartQuantity(product as ICartProduct, value)
+                  }
                 />
               ) : (
-                <Typography variant='h5'>
+                <Typography variant="h5">
                   {product.quantity}{' '}
                   {product.quantity > 1 ? 'productos' : 'producto'}
                 </Typography>
@@ -71,15 +85,19 @@ export const CartList: FC<Props> = ({ editable = false }) => {
           <Grid
             item
             xs={2}
-            display='flex'
-            alignItems='center'
-            flexDirection='column'
+            display="flex"
+            alignItems="center"
+            flexDirection="column"
           >
-            <Typography variant='subtitle1'>${product?.price}</Typography>
+            <Typography variant="subtitle1">${product?.price}</Typography>
             {/* editable */}
 
             {editable && (
-              <Button onClick={() => removeCartProduct(product)} variant='text' color='secondary'>
+              <Button
+                onClick={() => removeCartProduct(product as ICartProduct)}
+                variant="text"
+                color="secondary"
+              >
                 Remover
               </Button>
             )}

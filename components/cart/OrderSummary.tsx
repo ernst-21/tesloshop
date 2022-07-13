@@ -1,12 +1,25 @@
 import { Grid, Typography } from '@mui/material';
-import { useContext } from 'react';
+import { FC, useContext } from 'react';
 import { CartContext } from '../../context';
 import { currency } from '../../utils';
 
 const taxRate = Number(process.env.NEXT_PUBLIC_TAX_RATE) * 100;
 
-export const OrderSummary = () => {
+type Props = {
+  orderValues?: {
+    total: number;
+    subTotal: number;
+    numberOfItems: number;
+    tax: number;
+  };
+};
+
+export const OrderSummary: FC<Props> = ({ orderValues }) => {
   const { total, subTotal, numberOfItems, tax } = useContext(CartContext);
+
+  const summaryValues = orderValues
+    ? orderValues
+    : { total, subTotal, numberOfItems, tax };
 
   return (
     <Grid container>
@@ -15,7 +28,7 @@ export const OrderSummary = () => {
       </Grid>
 
       <Grid item xs={6} display="flex" justifyContent="end">
-        <Typography>{numberOfItems}</Typography>
+        <Typography>{summaryValues.numberOfItems}</Typography>
       </Grid>
 
       <Grid item xs={6}>
@@ -23,7 +36,7 @@ export const OrderSummary = () => {
       </Grid>
 
       <Grid item xs={6} display="flex" justifyContent="end">
-        <Typography>{currency.format(subTotal)}</Typography>
+        <Typography>{currency.format(summaryValues.subTotal)}</Typography>
       </Grid>
 
       <Grid item xs={6}>
@@ -31,7 +44,7 @@ export const OrderSummary = () => {
       </Grid>
 
       <Grid item xs={6} display="flex" justifyContent="end">
-        <Typography>{currency.format(tax)}</Typography>
+        <Typography>{currency.format(summaryValues.tax)}</Typography>
       </Grid>
 
       <Grid item xs={6} sx={{ mt: 2 }}>
@@ -39,7 +52,9 @@ export const OrderSummary = () => {
       </Grid>
 
       <Grid item xs={6} sx={{ mt: 2 }} display="flex" justifyContent="end">
-        <Typography variant="subtitle1">{currency.format(total)}</Typography>
+        <Typography variant="subtitle1">
+          {currency.format(summaryValues.total)}
+        </Typography>
       </Grid>
     </Grid>
   );

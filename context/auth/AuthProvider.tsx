@@ -23,36 +23,13 @@ type ProviderProps = {
 
 export const AuthProvider = ({ children }: ProviderProps) => {
   const [state, dispatch] = useReducer(authReducer, AUTH_INITIAL_STATE);
-  const router = useRouter();
   const { data, status } = useSession();
 
   useEffect(() => {
     if (status === 'authenticated') {
-      console.log('user', { user: data?.user });
-      //TODO:
       dispatch({ type: '[Auth] - Login', payload: data.user as IUser });
     }
   }, [data, status]);
-
-  // useEffect(() => {
-  //   checkToken();
-  // }, []);
-
-  const checkToken = async () => {
-    if (!Cookies.get('token')) {
-      return;
-    }
-
-    try {
-      const { data } = await tesloApi.get('/user/validate-token');
-      const { token, user } = data;
-      Cookies.set('token', token);
-      dispatch({ type: '[Auth] - Login', payload: user });
-      return true;
-    } catch (error) {
-      Cookies.remove('token');
-    }
-  };
 
   const loginUser = async (
     email: string,
